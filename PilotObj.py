@@ -92,6 +92,10 @@ class PilotObj:
 			if random.random() < .7:
 				GAME.loot_set.add(SpaceObj.Escapepod(self.vessel.coloring, self.vessel.pos))
 				
+	def jump(self):
+		self.vessel.jump()
+		GAME.remove_pilot_set.add(self)
+				
 	def dock_range(self, pilot):
 		"""Is my vessel within docking range ofthe other pilot's vessel?"""
 		return self.vessel.dock_range(pilot.vessel)
@@ -182,7 +186,7 @@ class RandomDirection(PilotObj):
 	def update(self):
 		PilotObj.update(self)
 		if self.vessel.age > self.age_max:
-			self.die()
+			self.jump()
 
 
 

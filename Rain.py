@@ -1,13 +1,44 @@
 """
 Rain
+
+This is the main file, run it to play the game.
+You will need pygame!
+
+Rain is a game similar to asteroids where you fly a space ship and collect 
+space crystals and space pods and return them to the space station.  
+There might be more added later. 
+
+The controls are:
+
+-Escape Key to quit.
+
+-Left/Right Arrow Keys to rotate your ship left or right.
+
+-Up/Down Arrow Keys to accelerate your ship forward or in reverse.
+
+-Space Bar to fire the main weapon.
+
+-Left Shift to fire the alternate weapon (not implemented atm).
+
+-'D' Key to dock with the space station when you are in range.
+
+-'F' and 'G' Keys to cycle through the focus list. 
+You can dock with the current focus if it is a space station.
+
+-'T' and 'Y' Keys to cycle through the target list. 
+You can fire on the current target even if it isn't hostile.
+
+Have fun!
+
 """
 
 
 
 __title__ = 'Rain'
-__version__ = '5ish'
+__other_title__ = 'SpaceShip'
+__other_other_title__ = 'Dwarves in Space'
 __author__ = 'Bob Geis'
-__date__ = '2013-06-27'
+__email__ = 'bobgeis@gmail.com'
 
 
 # import stuff
@@ -26,7 +57,8 @@ HALFWINHEI = int(WINHEI/2)
 WINCENT = [HALFWINWID,HALFWINHEI]
 FPS = 30					# frames per second, used in the main game loop FPSCLOCK.tick(FPS) to govern the game speed
 
-# colors	   R   G   B	# no particular colors are required, and you may need to add some to this.
+
+# colors	   R   G   B	
 BLACK = 	(  0,  0,  0)
 WHITE = 	(255,255,255)
 GREY = 		(128,128,128)
@@ -41,6 +73,7 @@ CYAN = 		(  0,255,255)
 
 # important colors
 BGCOLOR = 	BLACK
+
 
 
 # some helper functions
@@ -118,7 +151,7 @@ def main():
 			if paused or not player.alive:
 				pass
 			elif event.type == KEYDOWN:
-				if event.key == K_UP:
+				if event.key == K_UP:			# movement controls
 					player.thrust_for()
 				elif event.key == K_DOWN:
 					player.thrust_rev()
@@ -128,22 +161,22 @@ def main():
 					player.turn_right()
 				elif event.key == K_RSHIFT:
 				 	player.thrust_for()
-				elif event.key == K_SPACE:
+				elif event.key == K_SPACE:		# weapon controls
 				 	player.shoot_main()
 				elif event.key == K_LSHIFT:
 				 	player.shoot_alt()
-				elif event.key == K_d:
+				elif event.key == K_d:			# focus control
 				 	player.focus_dock()
 				elif event.key == K_f:
 					player.change_focus()
-				elif event.key == K_g:
+				elif event.key == K_g:			# target control
 					player.change_focus_rev()
 				elif event.key == K_t:
 					player.change_target()
 				elif event.key == K_y:
 					player.change_target_rev()
 			elif event.type == KEYUP:
-				if event.key == K_UP or event.key == K_DOWN:
+				if event.key == K_UP or event.key == K_DOWN:		# movement controls again
 					player.thrust_off()
 				elif event.key == K_LEFT or event.key == K_RIGHT:
 					player.turn_off()

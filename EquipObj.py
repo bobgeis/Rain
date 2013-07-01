@@ -1,10 +1,27 @@
 """
 EquipObj
+
+Organization:
+
+Globals
+init
+
+EquipObj
+BasicEquip
+FragileEquip
+SlowEquip
+StationEquip
+
+WpnObj
+BeamObj
+LanceBeam
 """
 
 import random, pygame, math
 
 import helper, GameObj
+
+
 
 
 GAME = None
@@ -40,7 +57,13 @@ class EquipObj:
 class BasicEquip(EquipObj):
 	
 	def __init__(self):
-		EquipObj.__init__(self, 5, -1, 9, 100, .01, 100, main_wpn = LanceBeam)
+		thrust = 5
+		retro = -1
+		turn_rate = 9
+		shield_max = 100
+		shield_regen = .01
+		cargo_max = 100
+		EquipObj.__init__(self, thrust, retro, turn_rate, shield_max, shield_regen, cargo_max, main_wpn = LanceBeam)
 		
 class FragileEquip(EquipObj):
 
@@ -48,10 +71,23 @@ class FragileEquip(EquipObj):
 		thrust = 1
 		retro = -.1
 		turn_rate = 4
-		shield_max = 20
+		shield_max = 10
 		shield_regen = 0
 		cargo_max = 50
 		EquipObj.__init__(self, thrust, retro, turn_rate, shield_max, shield_regen, cargo_max)
+		
+		
+class SlowEquip(EquipObj):
+
+	def __init__(self):
+		thrust = .5
+		retro = -.1
+		turn_rate = 4
+		shield_max = 200
+		shield_regen = .01
+		cargo_max = 200
+		EquipObj.__init__(self, thrust, retro, turn_rate, shield_max, shield_regen, cargo_max)
+
 		
 class StationEquip(EquipObj):
 	

@@ -84,8 +84,10 @@ def init(game):
 	img_names = glob.glob('./Images/Vessel/*/*.png')
 	
 	# Now to actually load the vessel images!
-	# IMGS is a dictionary 3 levels deep, with keys being the vessel type, then the coloring, then and then the state.
-	# I did it this way to save a of typing in order to load images
+	# VESSEL_IMGS is a dictionary with the vessel types as keys and another dictionary 
+	# for each value.  Each of those dictionaries has vessel colorings as and a list
+	# of images for each value.  The list of images correspond to the four glow states
+	# that vessels can be drawn in: 0=Off, 1=Dim, 2=Glow, 3=Bright
 	VESSEL_IMGS = {vessel:{coloring:[] for coloring in COLORING_LIST} for vessel in VESSEL_LIST}
 	for img_name in img_names:
 		for vessel in VESSEL_LIST:
@@ -105,7 +107,7 @@ def init(game):
 				FLAG_IMGS[flag] = pygame.image.load(img_name)
 	
 	
-	global STAR_IMGS, EXPLOSION_IMGS
+	global STAR_IMGS, EXPLOSION_IMGS, FTL_IMGS
 	global DEBRIS_IMGS, ROCK_IMGS, SMALLCRYSTAL_IMGS, LARGECRYSTAL_IMGS 
 	
 	# load images of stars
@@ -138,12 +140,19 @@ def init(game):
 	for file in file_names:
 		LARGECRYSTAL_IMGS.append(pygame.image.load(file))
 		
-	# load images of stars
+	# load images of explosions
 	file_names = glob.glob('./Images/SpaceObj/Explosion/*.png')
 	EXPLOSION_IMGS = []
 	for file in file_names:
 		EXPLOSION_IMGS.append(pygame.image.load(file))
-	
+		
+	# load images of vessels going FTL
+	file_names = glob.glob('./Images/SpaceObj/FTL/*.png')
+	FTL_IMGS = {type:[] for type in VESSEL_LIST}
+	for file in file_names:
+		for type in VESSEL_LIST:
+			if fnmatch.fnmatch(file, '*'+type+'*'):
+				FTL_IMGS[type].append(pygame.image.load(file))
 	
 	
 
@@ -349,7 +358,7 @@ class RandomCrystal(AnimatedSpaceObj):
 	SMALLCRYSTAL_MAX = 10
 	LARGECRYSTAL_MAX = 30
 	CRYSTAL_MASS = 5
-	STEP_RATE = 20
+	STEP_RATE = 30
 	def __init__(self, pos, vel, angle, angvel):
 		self.cargo = {}
 		if random.random() < self.SMALLCRYSTAL_CHANCE:
@@ -368,6 +377,11 @@ class Explosion(AnimatedSpaceObj):
 	"""An explosion.  Remember to remove it when it's done."""
 	def __init__(self, pos, vel, angle, angvel):
 		AnimatedSpaceObj.__init__(self, pos, vel, angle, angvel, 1, 1, EXPLOSION_IMGS, 1)
+		
+class AnimateFTL(AnimatedSpaceObj):
+	"""The light created by a vessel going FTL."""
+	def __init__(self, pos, vel, angle, angvel, vessel_type):
+		AnimatedSpaceObj.__init__(self, pos, vel, angle-90, angvel, 1, 1, FTL_IMGS[vessel_type], 1)
 		
 
 
@@ -404,6 +418,7 @@ class Vessel(AnimatedSpaceObj):
 			
 		# image marker used to calculate the index of self.img_list when drawing
 		self.glow = 0
+		GAME.explosion_set.add(AnimateFTL(self.pos, self.vel, self.angle, self.angvel, self.type))
 		
 
 		
@@ -480,6 +495,10 @@ class Vessel(AnimatedSpaceObj):
 	def die(self):
 		"""If you die, make an explosion."""
 		GAME.explosion_set.add(Explosion(self.pos, self.vel, self.angle, self.angvel))
+		
+	def jump(self):
+		"""FTL jump!"""
+		GAME.explosion_set.add(AnimateFTL(self.pos, self.vel, self.angle, self.angvel, self.type))
 		
 	def is_station(self):
 		return False		# are you a station?
@@ -583,7 +602,7 @@ class Discus(Ship):
 		radius = 23
 		dock_radius = 20
 		mass = 10
-		flag_loc = [20,12]
+		flag_loc = [21,21]
 		Ship.__init__(self, pos, [0,0], 90, 0, radius, dock_radius, mass, 'Discus', \
 			coloring, coloring, flag_loc)
 			

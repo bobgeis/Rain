@@ -16,31 +16,52 @@ pygame.init()
 # 1: 'Dim'
 # 2: 'Glow'			Shoot/Dock
 # 3: 'Bright'		Shield/Thrust 
+#				R   G   B     R   G   B
 GLOW = [	[(128,128,  0),( 90, 90,  0)], \
 			[( 25,175,175),( 90,150,125)], \
 			[(  0,225,225),( 25,175,175)], \
 			[(100,255,255),(  0,225,225)]]
+			
+			
+# vessel ftl color lists
+# 0: 'darkest and most transparent (hopefully)
+# 4: 'lightest
+
+FTL =  [ [[( 90,150,125),( 0, 0, 0, 0)],[( 0, 0, 0, 0),( 0, 0, 0, 0)]], \
+		 [[( 25,175,175),( 90,150,125)],[( 0, 0, 0, 0),( 0, 0, 0, 0)]], \
+		 [[(  0,225,225),( 25,175,175)],[( 90,150,125),( 0, 0, 0, 0)]], \
+		 [[(100,255,255),(  0,225,225)],[( 25,175,175),( 90,150,125)]], \
+		 [[(255,255,255),(100,255,255)],[(  0,225,225),( 25,175,175)]], \
+		 [[(255,255,255),(255,255,255)],[(100,255,255),(  0,225,225)]], \
+		 [[(255,255,255),(255,255,255)],[(255,255,255),(100,255,255)]]]	
 				
-# vessel coloring dict
+# the color of the flag frame on grey ships
+GREY_FLAG_BORDER = (175,175,175)
+# vessel coloring dict			  R   G   B     R   G   B
 COLORINGS = {	'Army'		: [(  0,180,  0),(  0,115,  0)], \
+				'Blue'		: [( 50, 50,255),(  0,  0,150)], \
 				'Builder'	: [(200,200,200),(255,128,  0)], \
 				'Civ'		: [(255,255,255),(128,  0,128)], \
 				'Garden'	: [(230,230,230),(  0,128,  0)], \
+				'Green'		: [(  0,255,  0),(  0,150,  0)], \
 				'Grey'		: [(200,200,200),(150,150,150)], \
 				'Medic'		: [(255,255,255),(225,  0,  0)], \
 				'Miner'		: [(200,200,200),(175, 50, 25)], \
 				'Navy'		: [(  0,100,200),(  0, 50,150)], \
 				'Pirate'	: [(230,230,230),(100, 90, 50)], \
 				'Police'	: [(230,230,230),(  0,  0,200)], \
-				'Science'	: [(255,255,255),(  0,150,150)] }
+				'Red'		: [(255,  0,  0),(150,  0,  0)], \
+				'Science'	: [(255,255,255),(  0,150,150)], \
+				'Yellow'	: [(255,255,  0),(150,150,  0)] }
 				
 				
 # flag name keys
-FLAG_LIST = ['Army', 'Builder', 'Civ', 'Garden', 'Grey', 'Medic', 'Miner', 'Navy', \
-			 'Pirate', 'Police', 'Science']
+FLAG_LIST = ['Army', 'Blue', 'Builder', 'Civ', 'Garden', 'Green', 'Grey', 'Medic', 'Miner', 'Navy', \
+			 'Pirate', 'Police', 'Red', 'Science', 'Yellow']
 # ship flag locations
 FLAG_LOCS = {	'Stingray'	: [20,12], \
-				'Raindrop'	: [11,7]}
+				'Raindrop'	: [11, 7], \
+				'Discus'	: [21,21]}
 
 # station flag locations and angles
 STATION_FLAGS = { 'Dome' : { 'Loc' : [[37,37],[103,37],[103,103],[37,103]], \
@@ -81,6 +102,20 @@ def recolor_vessel(old_key, new_key, img_list):
 		new_img_list.append(new_img)
 	return new_img_list
 	
+def make_ftl(img):
+	"""Make versions of img with colors corresponding to FTL."""
+	new_img_list = []
+	for state in range(len(FTL)):
+		new_img = double_replace_color(GLOW[0], FTL[state][0], img)
+		new_img = double_replace_color(COLORINGS['Grey'], FTL[state][1], new_img)
+		new_img_list.append(new_img)
+	return new_img_list
+	
+def remove_flag_frame(img):
+	new_img = replace_color(GREY_FLAG_BORDER, COLORINGS['Grey'][0], img)
+	return new_img
+	
+	
 def make_glow(img):
 	"""Given an img of a vessel in the 'Off' (GLOW[0]) state, return a list of images
 	 in each glow state."""
@@ -101,6 +136,17 @@ def double_replace_color(color_list1, color_list2, img):
 				pixObj[x][y] = color_list2[1]
 			elif pixObj[x][y] == img.map_rgb(color_list1[0]):
 				pixObj[x][y] = color_list2[0]
+	del pixObj	
+	return img
+	
+def replace_color(color1, color2, img):
+	img = img.copy()
+	pixObj = pygame.PixelArray(img)
+	img_size = img.get_size()
+	for x in range(img_size[0]):
+		for y in range(img_size[1]):
+			if pixObj[x][y] == img.map_rgb(color1):
+				pixObj[x][y] = color2
 	del pixObj	
 	return img
 	
@@ -132,14 +178,23 @@ def main():
 	load_flags()
 	
 	# use this to make things glow
-	
+	"""
 	img = load_grey_img('CircleGlow')
 	glow_list = make_glow(img)
 	save_img_list('Glow', glow_list)
+	"""
+	# use this to make things FTL
+	
+	type = 'Longboat'
+	img = load_grey_img(type)
+	img = remove_flag_frame(img)
+	ftl_list = make_ftl(img)
+	save_img_list(type, ftl_list)
 	
 	# use this for vessels 
 	"""
-	grey_img = load_grey_img('Raindrop')
+	type = 'Raindrop'
+	grey_img = load_grey_img(type)
 	grey_glow_list = make_glow(grey_img)
 	for flag in FLAG_LIST:
 		color_glow_list = recolor_vessel('Grey', flag, grey_glow_list)
@@ -148,21 +203,23 @@ def main():
 	
 	# use this for ships 
 	"""
-	grey_img = load_grey_img('Raindrop')
+	type = 'Discus'
+	grey_img = load_grey_img(type)
 	grey_glow_list = make_glow(grey_img)
 	for flag in FLAG_LIST:
 		color_glow_list = recolor_vessel('Grey', flag, grey_glow_list)
-		color_glow_list = add_flag(flag, 'Raindrop', color_glow_list)	# only add flags to ships
+		color_glow_list = add_flag(flag, type, color_glow_list)	
 		save_img_list(flag, color_glow_list)
 	"""
 	
 	
 	# use this for stations
 	"""
+	type = 'Dome'
 	flag_list = ['Medic', 'Police', 'Miner', 'Garden']	# make sure you have the right number of flags!
-	grey_img = load_grey_img('Dome')
+	grey_img = load_grey_img(type)
 	grey_glow_list = make_glow(grey_img)
-	flag_glow_list = add_station_flags('Dome', flag_list, grey_glow_list)
+	flag_glow_list = add_station_flags(type, flag_list, grey_glow_list)
 	save_img_list('Grey', flag_glow_list)
 	"""
 	

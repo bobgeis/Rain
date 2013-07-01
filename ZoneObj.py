@@ -34,7 +34,7 @@ class ZoneObj:
 	area around a planet, and another might be in hyperspace or a blackhole."""
 	
 	def __init__(self, name, size, shape, friction, star_density, debris_density, \
-				rock_density, spawn_chance, background_color, pilot_list, spawn_pilot_list, \
+				rock_density, background_color, pilot_list, \
 				node_list):
 		self.name = name
 		self.size = size		# if there's an edge, how far away is it from the origin? (at the closest point)
@@ -44,9 +44,7 @@ class ZoneObj:
 		self.debris_density = debris_density
 		self.rock_density = rock_density
 		self.background_color = background_color
-		self.spawn_chance = spawn_chance
 		
-		self.spawn_pilot_list = spawn_pilot_list
 		self.pilot_list = pilot_list
 		self.node_list = node_list
 		
@@ -57,39 +55,41 @@ class ZoneObj:
 		
 class Starting(ZoneObj):
 	"""This is the starting zone that we've been playing with so far."""
+	SPAWN_RAINDROP_CHANCE = 0.005
+	SPAWN_DISCUS_CHANCE = 0.001
 	
 	def __init__(self):
 		pilot_list = []
 		pilot_list.append(PilotObj.PilotObj(SpaceObj.Dome([0,0]),EquipObj.StationEquip()))
-		spawn_pilot_list = []
-		spawn_pilot_list.append(PilotObj.PilotObj(SpaceObj.Raindrop(GAME.get_spawn_pt(True),'Civ'),EquipObj.BasicEquip()))
 		node_list = []
-		spawn_chance = 0.005
 		friction = 0.9
 		star_density = 100
 		debris_density = 20
 		rock_density = 20
 		ZoneObj.__init__(self, 'Maia: Asteroid Belt', None, None, friction, star_density, \
-				debris_density, rock_density, spawn_chance, \
-				BLACK, pilot_list, spawn_pilot_list, node_list)
+				debris_density, rock_density, \
+				BLACK, pilot_list, node_list)
 				
 	def spawn_pilot(self):
-		if random.random() < self.spawn_chance:
-			GAME.pilot_list.append(PilotObj.RandomDirection(SpaceObj.Raindrop(GAME.get_spawn_pt(),'Civ'),EquipObj.FragileEquip()))
-				
+		if random.random() < self.SPAWN_RAINDROP_CHANCE:
+			GAME.pilot_list.append(PilotObj.RandomDirection( \
+					SpaceObj.Raindrop(GAME.get_spawn_pt(),'Civ'),EquipObj.FragileEquip()))
+		elif random.random() < self.SPAWN_DISCUS_CHANCE:
+			GAME.pilot_list.append(PilotObj.RandomDirection( \
+					SpaceObj.Discus([0,0], random.choice(['Medic','Miner','Police'])), \
+					EquipObj.SlowEquip()))
+			
 				
 class Next(ZoneObj):
 	"""This is the next zone after the starting zone."""
 	
 	def __init__(self):
 		pilot_list = []
-		spawn_pilot_list = []
 		node_list = []
 		friction = 0.9
 		star_density = 200
 		debris_density = 10
 		rock_density = 5
-		spawn_chance = 0
 		ZoneObj.__init__(self, 'Maia: Verdeluna', None, None, friction, star_density, \
-				debris_density, rock_density, spawn_chance, \
-				BLACK, pilot_list, spawn_pilot_list, node_list)
+				debris_density, rock_density, \
+				BLACK, pilot_list, node_list)

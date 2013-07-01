@@ -106,7 +106,7 @@ class GameObj:
 				
 		for pilot in self.remove_pilot_set:
 			self.pilot_list.remove(pilot)
-			del pilot
+			#del pilot
 			
 		spawned_pilot = self.zone.spawn_pilot()
 		if spawned_pilot:
