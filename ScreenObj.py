@@ -10,14 +10,20 @@ import helper
 GAME = None
 
 def init(game):
-	global GAME, ARROWGLOW_IMGS, ARROWCOLOR_IMGS, CIRCLECOLOR_IMGS
+	global GAME, ARROWGLOW_IMGS, CIRCLEGLOW_IMGS, ARROWCOLOR_IMGS, CIRCLECOLOR_IMGS
 	GAME = game
 	
 	# load images here
+	
 	file_names = glob.glob('./Images/ScreenObj/Arrow/Glow*.png')
 	ARROWGLOW_IMGS = []
 	for file in file_names:
 		ARROWGLOW_IMGS.append(pygame.image.load(file))
+		
+	file_names = glob.glob('./Images/ScreenObj/Circle/Glow*.png')
+	CIRCLEGLOW_IMGS = []
+	for file in file_names:
+		CIRCLEGLOW_IMGS.append(pygame.image.load(file))
 		
 	ARROWCOLOR_IMGS = [pygame.image.load('./Images/ScreenObj/Arrow/Red.png'), \
 					   pygame.image.load('./Images/ScreenObj/Arrow/Yellow.png'), \
@@ -115,16 +121,18 @@ class TargetArrow(GuideArrow):
 class NavArrow(GuideArrow):
 
 	def __init__(self, player):
-		screen_pos = [GAME.frame_size[0] - 28, 16]
+		screen_pos = [GAME.frame_size[0] - 28, GAME.frame_size[1] - 28]
 		start_pilot = player
 		stop_pilot = player.nav
 		img = ARROWGLOW_IMGS[3]
-		GuideArrow.__init__(self, screen_pos, start_pilot, stop_pilot, img)
+		alt_img = CIRCLEGLOW_IMGS[3]
+		GuideArrow.__init__(self, screen_pos, start_pilot, stop_pilot, img, alt_img)
 		
 	def update(self):
 		self.stop = self.start.nav
 		if self.stop:
-			GuideArrow.update(self)
+			self.angle = helper.vec2ang([self.start.vessel.pos[0] - self.stop.parallax_obj.pos[0], \
+							self.start.vessel.pos[1] - self.stop.parallax_obj.pos[1]])
 	
 	
 	

@@ -224,16 +224,49 @@ class GameObj:
 				
 				
 	
-	def new_zone(self, zone):
+	def new_zone(self, zone, vessel):
+		
 		self.zone = zone
-		self.star_set = set()
+		self.pilot_list = []
 		self.pilot_list = zone.pilot_list
 		self.pilot_list.append(self.player)
+		
+		self.node_list = []
 		self.node_list = zone.node_list
+		
+		self.player.target = None
+		self.player.focus = None
+		self.player.nav = None
+		
+		self.centered_on = vessel
+		self.center_camera()
+		
+		self.star_set = set()	
 		while len(self.star_set) < self.zone.star_density:
-			self.star_set.add(SpaceObj.RandomStar(True))	
-		self.screenobj_list.append(ScreenObj.FocusArrow(self.player))
-		self.screenobj_list.append(ScreenObj.TargetArrow(self.player))
+			self.star_set.add(SpaceObj.RandomStar(True))
+		
+		self.rock_set = set()	
+		while len(self.rock_set) < self.zone.rock_density:
+			self.rock_set.add(SpaceObj.RandomRock())
+			
+		self.loot_set = set()
+		self.debris_set = set()
+		self.explosion_set = set()
+		self.wpn_set = set()
+			
+			
+		if self.player:
+			self.screenobj_list.append(ScreenObj.FocusArrow(self.player))
+			self.screenobj_list.append(ScreenObj.TargetArrow(self.player))
+			self.screenobj_list.append(ScreenObj.NavArrow(self.player))
+			
+			
+	def player_jump(self):
+		if not self.player.nav.in_jump_range(self.player):
+			print "not in range"
+			return		# if not in jump range, do nothing
+		else:
+			self.new_zone(self.player.nav.zone, self.player.vessel)
 	
 
 	

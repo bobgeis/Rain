@@ -62,6 +62,8 @@ class Starting(ZoneObj):
 		pilot_list = []
 		pilot_list.append(PilotObj.PilotObj(SpaceObj.Dome([0,0]),EquipObj.StationEquip()))
 		node_list = []
+		node_sprite = SpaceObj.ParallaxObj([5000,5000], 5, SpaceObj.PLANET_IMG)
+		node_list.append(Node([5000,5000],[1000,1000],node_sprite, Next()))
 		friction = 0.9
 		star_density = 100
 		debris_density = 20
@@ -87,9 +89,54 @@ class Next(ZoneObj):
 		pilot_list = []
 		node_list = []
 		friction = 0.9
-		star_density = 200
+		star_density = 300
 		debris_density = 10
 		rock_density = 5
 		ZoneObj.__init__(self, 'Maia: Verdeluna', None, None, friction, star_density, \
 				debris_density, rock_density, \
 				BLACK, pilot_list, node_list)
+				
+				
+class Splash(ZoneObj):
+	"""This is a zone for the splash screen."""
+	
+	def __init__(self):
+		pilot_list = []
+		rain_drop = PilotObj.PilotObj(SpaceObj.Raindrop([50000,50000],'Civ'),EquipObj.BasicEquip())
+		rain_drop.vessel.angle = 90
+		rain_drop.thrust_for()
+		pilot_list.append(rain_drop)
+		node_list = []
+		friction = .99
+		star_density = 200
+		debris_density = 5
+		rock_density = 0
+		ZoneObj.__init__(self, 'Splash Zone', None, None, friction, star_density, \
+				debris_density, rock_density, \
+				BLACK, pilot_list, node_list)
+				
+				
+class Node:
+	"""Nodes represent links between zones."""
+	
+	def __init__(self, pos, out_pos, parallax_obj, zone):
+		self.pos = pos
+		self.out_pos = out_pos
+		self.parallax_obj = parallax_obj
+		self.zone = zone
+		
+	def draw(self):
+		self.parallax_obj.draw()
+		
+	def update(self):
+		pass
+		
+	def make_anti_node(self):
+		return Node(out_pos, pos, None, Game.zone)
+		
+	def in_jump_range(self, pilot):
+		return helper.dist(self.pos,pilot.vessel.pos) <= 10 + pilot.vessel.radius
+		
+		
+		
+		

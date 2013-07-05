@@ -30,6 +30,16 @@ You can fire on the current target even if it isn't hostile.
 
 Have fun!
 
+Code and art by me.
+
+Some Influences:
+
+Rice Rocks made for Coursera:
+http://www.codeskulptor.org/#user16_BQzpUJrvg8XGhHh.py 
+
+Squirrel Eat Squirrel by Al Sweigart:
+http://inventwithpython.com/pygame/chapter8.html
+
 """
 
 
@@ -118,8 +128,10 @@ def main():
 	
 	# font		# fonts are initialized by the pygame.init() call above, so global fonts need to be declared after that
 	BASICFONT = pygame.font.Font('freesansbold.ttf', 12)
+	BIGFONT = pygame.font.Font('freesansbold.ttf', 36)
 	
 	paused = False
+	started = False
 	
 	GAME = GameObj.GameObj(FRAME)
 	init()							# make a GAME object, then call init, because many modules use the GAME as a global for camera info 
@@ -129,11 +141,8 @@ def main():
 	player_ship = SpaceObj.Stingray([0,0], 'Medic')
 	player = PilotObj.PilotObj(player_ship, EquipObj.BasicEquip())
 	GAME.player = player
-	GAME.new_zone(ZoneObj.Starting())
-	
-	GAME.centered_on = player_ship
-	
-	player.focus = GAME.pilot_list[0]
+	splash_zone = ZoneObj.Splash()
+	GAME.new_zone(splash_zone, splash_zone.pilot_list[0].vessel)
 	
 	while True:  # main game loop
 
@@ -143,12 +152,20 @@ def main():
 		for event in pygame.event.get():  # handle events
 			if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
 				terminate()
-			elif event.type == KEYUP and event.key == K_p:
+			elif started and event.type == KEYUP and event.key == K_p:
 				if paused:
 					paused = False
 				else:
 					paused = True
-			if paused or not player.alive:
+			if not started:
+				if  event.type == KEYUP and event.key == K_SPACE:
+					started = True
+					GAME.new_zone(ZoneObj.Starting(), player.vessel)
+					player.focus = GAME.pilot_list[0]
+					player.nav = GAME.node_list[0]
+				else:
+					pass
+			elif paused or not player.alive:
 				pass
 			elif event.type == KEYDOWN:
 				if event.key == K_UP:			# movement controls
@@ -175,6 +192,8 @@ def main():
 					player.change_target()
 				elif event.key == K_y:
 					player.change_target_rev()
+				elif event.key == K_j:
+					GAME.player_jump()
 			elif event.type == KEYUP:
 				if event.key == K_UP or event.key == K_DOWN:		# movement controls again
 					player.thrust_off()
@@ -194,33 +213,44 @@ def main():
 		# fill the draw queue. Remember FIFO and later things are drawn on top of earlier things.
 		GAME.draw()
 		
+		if started:
+			player_text = BASICFONT.render('Shields: '+str(int(player.shield))+ \
+						'     Crystal: '+str(player.cargo['Crystal'])+ \
+						'     People: '+str(player.cargo['People']), True, WHITE)
+			FRAME.blit(player_text, [0,0])
 		
-		player_text = BASICFONT.render('Shields: '+str(int(player.shield))+ \
-					'     Crystal: '+str(player.cargo['Crystal'])+ \
-					'     People: '+str(player.cargo['People']), True, WHITE)
-		FRAME.blit(player_text, [0,0])
-		
-		if player.focus:
-			focus_text = BASICFONT.render('Shields:  '+str(int(player.focus.shield))+ \
-						'     Crystal: '+str(player.focus.cargo['Crystal'])+ \
-						'     People: '+str(player.focus.cargo['People']), True, WHITE)
-			FRAME.blit(focus_text, [0,WINHEI-12])
+			if player.focus:
+				focus_text = BASICFONT.render('Shields:  '+str(int(player.focus.shield))+ \
+							'     Crystal: '+str(player.focus.cargo['Crystal'])+ \
+							'     People: '+str(player.focus.cargo['People']), True, WHITE)
+				FRAME.blit(focus_text, [0,WINHEI-12])
 			
-		if player.target:
-			target_text = BASICFONT.render('Shields:  '+str(int(player.target.shield))+ \
-						'     Crystal: '+str(player.target.cargo['Crystal'])+ \
-						'     People: '+str(player.target.cargo['People']), True, WHITE)
-			img_size = target_text.get_size()
-			FRAME.blit(target_text, [WINWID-img_size[0],0])
+			if player.target:
+				target_text = BASICFONT.render('Shields:  '+str(int(player.target.shield))+ \
+							'     Crystal: '+str(player.target.cargo['Crystal'])+ \
+							'     People: '+str(player.target.cargo['People']), True, WHITE)
+				img_size = target_text.get_size()
+				FRAME.blit(target_text, [WINWID-img_size[0],0])
 		
 		# draw the paused box
-		if paused:
+		if paused and started:
 			pause_text = BASICFONT.render("Game Paused", True, WHITE)
 			img_size = pause_text.get_size()
 			pygame.draw.rect(FRAME, BLUE, \
 					(WINCENT[0] - img_size[0]/2, WINCENT[1] - img_size[1]/2, \
 					img_size[0], img_size[1])) 
 			FRAME.blit(pause_text, [WINCENT[0] - img_size[0]/2, WINCENT[1] - img_size[1]/2])
+		
+		# if the game hasn't started yet, let's draw something to show that
+		if not started:
+			splash_text = BIGFONT.render("Rain", True, WHITE)
+			splash_size = splash_text.get_size()
+			FRAME.blit(splash_text, [WINCENT[0] - splash_size[0]/2, 64 - splash_size[1]/2])
+			start_text = BASICFONT.render( \
+					"Press Space to Begin", \
+					True, WHITE)
+			start_size = start_text.get_size()
+			FRAME.blit(start_text, [WINCENT[0] - start_size[0]/2, WINHEI - 32 - start_size[1]/2])
 			
 		# now we actually draw everything
 		pygame.display.update()

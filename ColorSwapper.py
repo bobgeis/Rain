@@ -179,18 +179,18 @@ def main():
 	
 	# use this to make things glow
 	"""
-	img = load_grey_img('CircleGlow')
+	img = load_grey_img('CrystalLong')
 	glow_list = make_glow(img)
-	save_img_list('Glow', glow_list)
+	save_img_list('Long', glow_list)
 	"""
 	# use this to make things FTL
-	
+	"""
 	type = 'Longboat'
 	img = load_grey_img(type)
 	img = remove_flag_frame(img)
 	ftl_list = make_ftl(img)
 	save_img_list(type, ftl_list)
-	
+	"""
 	# use this for vessels 
 	"""
 	type = 'Raindrop'

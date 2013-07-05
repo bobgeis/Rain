@@ -126,6 +126,9 @@ class PilotObj:
 		
 	# progress your focus forward and back through the pilot list
 	def change_focus(self):
+		if len(GAME.pilot_list) == 0:
+			self.focus = None
+			return
 		if self.focus == None:
 			self.focus = GAME.pilot_list[0]
 		else:
@@ -138,6 +141,9 @@ class PilotObj:
 			self.change_focus()
 	
 	def change_focus_rev(self):
+		if len(GAME.pilot_list) == 0:
+			self.focus = None
+			return
 		if self.focus == None:
 			self.focus = GAME.pilot_list[-1]
 		else:
@@ -151,6 +157,9 @@ class PilotObj:
 		
 	# progress your target forward and back through the pilot list
 	def change_target(self):
+		if len(GAME.pilot_list) == 0:
+			self.target = None
+			return
 		if self.target == None:
 			self.target = GAME.pilot_list[0]
 		else:
@@ -163,6 +172,9 @@ class PilotObj:
 			self.change_target()
 	
 	def change_target_rev(self):
+		if len(GAME.pilot_list) == 0:
+			self.target = None
+			return
 		if self.target == None:
 			self.target = GAME.pilot_list[-1]
 		else:

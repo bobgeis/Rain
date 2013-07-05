@@ -153,6 +153,11 @@ def init(game):
 		for type in VESSEL_LIST:
 			if fnmatch.fnmatch(file, '*'+type+'*'):
 				FTL_IMGS[type].append(pygame.image.load(file))
+				
+	global PLANET_IMG, WORLD_IMG
+	# load planets
+	PLANET_IMG = pygame.image.load('./Images/SpaceObj/Planet/Blue.png')
+	WORLD_IMG = pygame.image.load('./Images/SpaceObj/World/Blue.png')
 	
 	
 
